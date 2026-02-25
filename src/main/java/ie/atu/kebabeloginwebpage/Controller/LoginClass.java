@@ -1,4 +1,4 @@
-package ie.atu.kebabeloginwebpage.LoginController;
+package ie.atu.kebabeloginwebpage.Controller;
 
 import ie.atu.kebabeloginwebpage.model.User;
 
