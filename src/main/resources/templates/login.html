@@ -7,26 +7,22 @@
 
 <h2>Kebab Review Platform</h2>
 
-<form>
+<form method="post" action="/login">
 
     <p>
         Username:
         <br>
-        <input type="text" name="username">
+        <input type="text" name="username" required>
     </p>
 
     <p>
         Password:
         <br>
-        <input type="password" name="password">
+        <input type="password" name="password" required>
     </p>
 
     <p>
-        <input type="checkbox"> Remember Me
-    </p>
-
-    <p>
-        <button type="button">Login</button>
+        <button type="submit">Login</button>
     </p>
 
     <p>
