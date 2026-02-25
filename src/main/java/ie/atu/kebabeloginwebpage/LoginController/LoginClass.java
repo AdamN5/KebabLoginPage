@@ -1,6 +1,7 @@
 package ie.atu.kebabeloginwebpage.LoginController;
 
-import ie.atu.kebabeloginwebpage.LoginController.User;
+import ie.atu.kebabeloginwebpage.model.User;
+
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
