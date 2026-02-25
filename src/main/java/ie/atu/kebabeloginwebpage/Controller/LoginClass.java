@@ -2,14 +2,17 @@ package ie.atu.kebabeloginwebpage.Controller;
 
 import ie.atu.kebabeloginwebpage.model.User;
 
+import jakarta.servlet.http.HttpSession;
+import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.ArrayList;
 
-@Controller
+@RestController
 public class LoginClass {
 
     private final ArrayList<User> users = new ArrayList<>();
@@ -30,18 +33,29 @@ public class LoginClass {
 
     @PostMapping("/login")
     public String doLogin(@RequestParam String username,
-                          @RequestParam String password) {
+                          @RequestParam String password,
+                          HttpSession session) {
 
         for (User u : users) {
-            if (u.getUsername().equals(username) && u.getPassword().equals(password)) {
+            if (u.getUsername().equals(username)
+                    && u.getPassword().equals(password)) {
+
+                session.setAttribute("loggedInUser", username);
                 return "redirect:/dashboard";
             }
         }
-        return "redirect:/login";
+
+        return "redirect:/login?error=true";
     }
 
+
     @GetMapping("/dashboard")
-    public String dashboard() {
+    public String dashboard(HttpSession session, Model model) {
+        String username = (String) session.getAttribute("loggedInUser");
+        if (username == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("username", username);
         return "dashboard";
     }
 }
