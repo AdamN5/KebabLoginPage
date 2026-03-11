@@ -3,31 +3,35 @@ package ie.atu.kebabeloginwebpage.Controller;
 import ie.atu.kebabeloginwebpage.model.User;
 
 import jakarta.servlet.http.HttpSession;
+import jakarta.validation.Valid;
 import org.springframework.ui.Model;
 import org.springframework.stereotype.Controller;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+
 
 import java.util.ArrayList;
 
-@RestController
+@Controller
 public class LoginClass {
 
     private final ArrayList<User> users = new ArrayList<>();
 
     public LoginClass() {
         // demo user for sprint review
-        users.add(new User("demo", "demo@atu.ie", "demo123"));
+        users.add(new User());
     }
 
     @PostMapping("/register")
-    public String doRegister(@RequestParam String username,
-                             @RequestParam String email,
-                             @RequestParam String password) {
+    public String doRegister(@Valid User user, BindingResult result) {
 
-        users.add(new User(username, email, password));
+        if (result.hasErrors()) {
+            return "register";
+        }
+
+        users.add(user);
         return "redirect:/login";
     }
 
@@ -48,6 +52,12 @@ public class LoginClass {
         return "redirect:/login?error=true";
     }
 
+
+    @GetMapping("/register")
+    public String showRegisterPage(Model model) {
+        model.addAttribute("user", new User());
+        return "register";
+    }
 
     @GetMapping("/dashboard")
     public String dashboard(HttpSession session, Model model) {
