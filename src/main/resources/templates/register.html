@@ -1,38 +1,61 @@
 <!DOCTYPE html>
-<html>
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Register</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        input {
+            border: 1px solid black;
+            padding: 4px;
+            margin: 2px 0;
+        }
+
+        .error-box {
+            border: 1px solid black;
+            background: grey;
+            padding: 3px 6px;
+            margin-bottom: 4px;
+            display: inline-block;
+        }
+    </style>
 </head>
+
 <body>
 
-<h2>Create Account</h2>
+<form th:action="@{/register}" method="post" th:object="${user}">
 
-<form method="post" action="/register">
+    <input type="text" th:field="*{username}" placeholder="Username">
+    <div th:if="${#fields.hasErrors('username')}" class="error-box">
+        <span th:errors="*{username}"></span>
+    </div>
 
-    <p>
-        Username:<br>
-        <input type="text" name="username" required>
-    </p>
+    <br>
 
-    <p>
-        Email:<br>
-        <input type="text" name="email" required>
-    </p>
+    <input type="email" th:field="*{email}" placeholder="Email">
+    <div th:if="${#fields.hasErrors('email')}" class="error-box">
+        <span th:errors="*{email}"></span>
+    </div>
 
-    <p>
-        Password:<br>
-        <input type="password" name="password" required>
-    </p>
+    <br>
 
-    <p>
-        <button type="submit">Register</button>
-    </p>
+    <input type="password" th:field="*{password}" placeholder="Password">
+    <div th:if="${#fields.hasErrors('password')}" class="error-box">
+        <span th:errors="*{password}"></span>
+    </div>
+
+    <br><br>
+
+    <button type="submit">Register</button>
 
 </form>
 
-<p>
-    <a href="/login">Back to Login</a>
-</p>
+<br>
+
+<a href="/login">Back to Login</a>
 
 </body>
 </html>
