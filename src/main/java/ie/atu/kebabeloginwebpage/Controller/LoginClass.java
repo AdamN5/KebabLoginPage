@@ -21,7 +21,7 @@ public class LoginClass {
 
     public LoginClass() {
         // demo user for sprint review
-        users.add(new User());
+        users.add(new User("demo", "demo@atu.ie", "demo123"));
     }
 
     @PostMapping("/register")
@@ -35,14 +35,21 @@ public class LoginClass {
         return "redirect:/login";
     }
 
+    @PostMapping("/logout")
+    public String logout(HttpSession session) {
+        session.invalidate(); // removes logged-in user
+        return "redirect:/login";
+    }
+
+
     @PostMapping("/login")
     public String doLogin(@RequestParam String username,
                           @RequestParam String password,
                           HttpSession session) {
 
         for (User u : users) {
-            if (u.getUsername().equals(username)
-                    && u.getPassword().equals(password)) {
+            if (username.equals(u.getUsername())
+                    && password.equals(u.getPassword())) {
 
                 session.setAttribute("loggedInUser", username);
                 return "redirect:/dashboard";
@@ -51,7 +58,24 @@ public class LoginClass {
 
         return "redirect:/login?error=true";
     }
+    @GetMapping("/account")
+    public String viewAccount(HttpSession session, Model model) {
 
+        String username = (String) session.getAttribute("loggedInUser");
+
+        if (username == null) {
+            return "redirect:/login";
+        }
+
+        for (User u : users) {
+            if (u.getUsername().equals(username)) {
+                model.addAttribute("username", u.getUsername());
+                model.addAttribute("email", u.getEmail());
+            }
+        }
+
+        return "account";
+    }
 
     @GetMapping("/register")
     public String showRegisterPage(Model model) {

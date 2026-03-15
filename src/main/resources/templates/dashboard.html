@@ -1,13 +1,18 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-  <title>User Dashboard</title>
+    <title>User Dashboard</title>
 </head>
 <body>
+
 <h1>Welcome, <span th:text="${username}">User</span>!</h1>
 <p>This is your dashboard.</p>
-<form th:action="@{/logout}" method="post">
-  <button type="submit">Logout</button>
+
+<p><a href="/account">View My Account</a></p>
+
+<form action="/logout" method="post">
+    <button type="submit">Logout</button>
 </form>
+
 </body>
 </html>
