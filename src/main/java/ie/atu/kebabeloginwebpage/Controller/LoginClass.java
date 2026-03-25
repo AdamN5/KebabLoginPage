@@ -79,6 +79,36 @@ public class LoginClass {
 
         return "redirect:/login?error=true";
     }
+
+    @PostMapping("/reset-password")
+    public String doResetPassword(@RequestParam String username,
+                                  @RequestParam String currentPassword,
+                                  @RequestParam String newPassword,
+                                  Model model) {
+
+        User found = null;
+        for (User u : users) {
+            if (u.getUsername() != null && u.getUsername().equals(username)) {
+                found = u;
+                break;
+            }
+        }
+
+        if (found == null) {
+            model.addAttribute("error", "Username not found");
+            return "reset-password";
+        }
+
+        if (found.getPassword() == null || !found.getPassword().equals(currentPassword)) {
+            model.addAttribute("error", "Current password is incorrect");
+            return "reset-password";
+        }
+
+        found.setPassword(newPassword);
+        return "redirect:/login";
+    }
+
+
     @GetMapping("/account")
     public String viewAccount(HttpSession session, Model model) {
 
@@ -113,6 +143,12 @@ public class LoginClass {
         model.addAttribute("username", username);
         return "dashboard";
     }
+
+    @GetMapping("/reset-password")
+    public String showResetPasswordPage() {
+        return "reset-password";
+    }
+
 }
 
 
