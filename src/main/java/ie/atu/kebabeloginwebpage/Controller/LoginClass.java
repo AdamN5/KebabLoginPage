@@ -41,6 +41,27 @@ public class LoginClass {
         return "redirect:/login";
     }
 
+    @GetMapping("/delete-account")
+    public String deleteAccountPage(HttpSession session) {
+        if (session.getAttribute("loggedInUser") == null) {
+            return "redirect:/login";
+        }
+        return "delete-account";
+    }
+
+    @PostMapping("/delete-account")
+    public String deleteAccount(HttpSession session) {
+        String username = (String) session.getAttribute("loggedInUser");
+
+        if (username == null) {
+            return "redirect:/login";
+        }
+
+        users.removeIf(user -> username.equals(user.getUsername()));
+        session.invalidate();
+
+        return "redirect:/login";
+    }
 
     @PostMapping("/login")
     public String doLogin(@RequestParam String username,
