@@ -1,6 +1,7 @@
 package ie.atu.kebabeloginwebpage.Controller;
 
 import ie.atu.kebabeloginwebpage.model.User;
+import ie.atu.kebabeloginwebpage.service.UserService;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -11,33 +12,30 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
-
-import java.util.ArrayList;
-
 @Controller
 public class LoginClass {
 
-    private final ArrayList<User> users = new ArrayList<>();
+    private final UserService userService;
 
-    public LoginClass() {
-        // demo user for sprint review
-        users.add(new User("demo", "demo@atu.ie", "demo123"));
+    public LoginClass(UserService userService) {
+        this.userService = userService;
     }
 
     @PostMapping("/register")
-    public String doRegister(@Valid User user, BindingResult result) {
-
+    public String doRegister(@Valid User user, BindingResult result, Model model) {
         if (result.hasErrors()) {
             return "register";
         }
-
-        users.add(user);
+        if (!userService.register(user)) {
+            model.addAttribute("error", "Username already taken");
+            return "register";
+        }
         return "redirect:/login";
     }
 
     @PostMapping("/logout")
     public String logout(HttpSession session) {
-        session.invalidate(); // removes logged-in user
+        session.invalidate();
         return "redirect:/login";
     }
 
@@ -52,14 +50,11 @@ public class LoginClass {
     @PostMapping("/delete-account")
     public String deleteAccount(HttpSession session) {
         String username = (String) session.getAttribute("loggedInUser");
-
         if (username == null) {
             return "redirect:/login";
         }
-
-        users.removeIf(user -> username.equals(user.getUsername()));
+        userService.deleteAccount(username);
         session.invalidate();
-
         return "redirect:/login";
     }
 
@@ -67,16 +62,10 @@ public class LoginClass {
     public String doLogin(@RequestParam String username,
                           @RequestParam String password,
                           HttpSession session) {
-
-        for (User u : users) {
-            if (username.equals(u.getUsername())
-                    && password.equals(u.getPassword())) {
-
-                session.setAttribute("loggedInUser", username);
-                return "redirect:/dashboard";
-            }
+        if (userService.login(username, password)) {
+            session.setAttribute("loggedInUser", username);
+            return "redirect:/dashboard";
         }
-
         return "redirect:/login?error=true";
     }
 
@@ -85,46 +74,24 @@ public class LoginClass {
                                   @RequestParam String currentPassword,
                                   @RequestParam String newPassword,
                                   Model model) {
-
-        User found = null;
-        for (User u : users) {
-            if (u.getUsername() != null && u.getUsername().equals(username)) {
-                found = u;
-                break;
-            }
-        }
-
-        if (found == null) {
-            model.addAttribute("error", "Username not found");
+        String error = userService.resetPassword(username, currentPassword, newPassword);
+        if (error != null) {
+            model.addAttribute("error", error);
             return "reset-password";
         }
-
-        if (found.getPassword() == null || !found.getPassword().equals(currentPassword)) {
-            model.addAttribute("error", "Current password is incorrect");
-            return "reset-password";
-        }
-
-        found.setPassword(newPassword);
         return "redirect:/login";
     }
 
-
     @GetMapping("/account")
     public String viewAccount(HttpSession session, Model model) {
-
         String username = (String) session.getAttribute("loggedInUser");
-
         if (username == null) {
             return "redirect:/login";
         }
-
-        for (User u : users) {
-            if (u.getUsername().equals(username)) {
-                model.addAttribute("username", u.getUsername());
-                model.addAttribute("email", u.getEmail());
-            }
-        }
-
+        userService.findByUsername(username).ifPresent(u -> {
+            model.addAttribute("username", u.getUsername());
+            model.addAttribute("email", u.getEmail());
+        });
         return "account";
     }
 
@@ -148,7 +115,4 @@ public class LoginClass {
     public String showResetPasswordPage() {
         return "reset-password";
     }
-
 }
-
-
