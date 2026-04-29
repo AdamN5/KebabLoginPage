@@ -2,6 +2,8 @@ package ie.atu.kebabeloginwebpage.Controller;
 
 import ie.atu.kebabeloginwebpage.model.User;
 import ie.atu.kebabeloginwebpage.service.UserService;
+import ie.atu.kebabeloginwebpage.client.ReviewClient;
+import ie.atu.kebabeloginwebpage.dto.KebabReviewDTO;
 
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
@@ -16,9 +18,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 public class LoginClass {
 
     private final UserService userService;
+    private final ReviewClient reviewClient;
 
-    public LoginClass(UserService userService) {
+    public LoginClass(UserService userService, ReviewClient reviewClient) {
         this.userService = userService;
+        this.reviewClient = reviewClient;
     }
 
     @PostMapping("/register")
@@ -114,5 +118,27 @@ public class LoginClass {
     @GetMapping("/reset-password")
     public String showResetPasswordPage() {
         return "reset-password";
+    }
+    @GetMapping("/reviews")
+    public String showReviews(HttpSession session, Model model) {
+        if (session.getAttribute("loggedInUser") == null) {
+            return "redirect:/login";
+        }
+        model.addAttribute("reviews", reviewClient.getAll());
+        model.addAttribute("username", session.getAttribute("loggedInUser"));
+        return "reviews";
+    }
+
+    @PostMapping("/reviews")
+    public String submitReview(@RequestParam String restaurant,
+                               @RequestParam String comment,
+                               @RequestParam int rating,
+                               HttpSession session) {
+        String username = (String) session.getAttribute("loggedInUser");
+        if (username == null) {
+            return "redirect:/login";
+        }
+        reviewClient.create(new KebabReviewDTO(null, username, restaurant, comment, rating));
+        return "redirect:/reviews";
     }
 }
