@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head><title>Reviews</title></head>
+<body>
+<h2>Kebab Reviews</h2>
+
+<form th:action="@{/reviews}" method="post">
+    <input type="text" name="restaurant" placeholder="Restaurant" required/>
+    <input type="number" name="rating" min="1" max="5" placeholder="Rating" required/>
+    <textarea name="comment" placeholder="Your review"></textarea>
+    <button type="submit">Submit</button>
+</form>
+
+<hr/>
+
+<div th:each="r : ${reviews}">
+    <h4 th:text="${r.restaurant}"></h4>
+    <p>Rating: <span th:text="${r.rating}"></span>/5</p>
+    <p th:text="${r.comment}"></p>
+    <small>by <span th:text="${r.username}"></span></small>
+    <hr/>
+</div>
+</body>
+</html>
